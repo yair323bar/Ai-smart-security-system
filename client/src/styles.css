@@ -1,0 +1,98 @@
+:root {
+  font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+  color: #f7fbff;
+  background:
+    radial-gradient(circle at top, rgba(152, 203, 255, 0.55), transparent 35%),
+    linear-gradient(135deg, #0e1e3d 0%, #173a63 45%, #6ea4d8 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.setup-card {
+  width: min(680px, 100%);
+  padding: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 28px;
+  background: rgba(8, 20, 43, 0.68);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 80px rgba(3, 12, 28, 0.35);
+}
+
+.badge {
+  width: fit-content;
+  margin: 0 0 12px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(126, 190, 255, 0.2);
+  color: #d5ebff;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1.05;
+}
+
+.lead {
+  margin: 18px 0 0;
+  max-width: 48ch;
+  color: #d8e8fb;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.status-grid {
+  margin-top: 28px;
+  display: grid;
+  gap: 14px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.status-item p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background: #7ef3b8;
+  box-shadow: 0 0 16px rgba(126, 243, 184, 0.75);
+}
+
+@media (max-width: 640px) {
+  .setup-card {
+    padding: 28px 22px;
+  }
+}
