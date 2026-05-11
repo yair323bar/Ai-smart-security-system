@@ -1,61 +1,62 @@
 # AI Smart Security System
 
-זהו פרויקט מקומי למערכת ניתוח סרטונים, שנבנה בהדרגה.
+Local full-stack project for video upload, review, and AI-based violence
+analysis.
 
-## מה יש כרגע
+## Tech Stack
 
-שלב 1 הושלם:
-- נוצר מבנה מסודר לפרויקט
-- נוצר צד אתר ב-React
-- נוצר צד שרת ב-Node.js
-- נוצר חיבור מקומי לגיטהאב
-- הוכנו הוראות הפעלה בסיסיות
+- React
+- Node.js
+- Express
+- MongoDB
 
-## מבנה התיקיות
+## Project Structure
 
 ```text
 ai-smart-security-system/
-├── client/   # האתר
-├── server/   # השרת
+├── client/
+├── server/
 └── README.md
 ```
 
-## איך מריצים
+## Installation
 
-פותחים טרמינל בתוך התיקייה של הפרויקט ומריצים:
+Run these commands from the project root:
 
 ```bash
 npm install --prefix client
 npm install --prefix server
 ```
 
-אחר כך מפעילים את השרת:
+## Run Locally
+
+Start the backend server:
 
 ```bash
 npm run dev --prefix server
 ```
 
-ובטרמינל נוסף מפעילים את האתר:
+Start the frontend in a second terminal:
 
 ```bash
 npm run dev --prefix client
 ```
 
-אחרי ההפעלה:
-- האתר ייפתח בכתובת ש-Vite יציג בטרמינל, בדרך כלל `http://localhost:5173`
-- השרת ירוץ בדרך כלל על `http://localhost:5001`
+Default local addresses:
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:5001`
 
-## מה עוד לא חובר
+## Environment
 
-עדיין לא חיברנו:
-- מסכי העיצוב הסופיים
-- הרשמה והתחברות אמיתיים
-- מסד נתונים MongoDB
-- העלאת סרטון אמיתית
-- ניתוח AI
+Create a `.env` file inside `server/` based on `server/.env.example`.
 
-## גיטהאב
+Example:
 
-המאגר שאליו נחבר את הפרויקט:
+```env
+PORT=5001
+MONGODB_URI=mongodb://127.0.0.1:27017/ai-smart-security-system
+```
+
+## Repository
 
 [Ai-smart-security-system](https://github.com/yair323bar/Ai-smart-security-system)
