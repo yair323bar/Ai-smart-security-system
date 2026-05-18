@@ -82,7 +82,7 @@ function Upload() {
               onChange={(e) => { setFile(e.target.files[0]); setError(""); }}
             />
             <div className="dropzone-icon">▶</div>
-            <span>{file ? file.name : "Click to browse or drag & drop"}</span>
+            <span>{file ? `${file.name}  (${(file.size / 1024 / 1024).toFixed(1)} MB)` : "Click to browse or drag & drop"}</span>
             <small>MP4, AVI, MOV and other formats — up to 300MB</small>
           </div>
 
