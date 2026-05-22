@@ -34,11 +34,11 @@ function Register() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          firstName: form.firstName,
-          lastName: form.lastName,
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
           age: form.age,
-          email: form.email,
-          username: form.username,
+          email: form.email.trim().toLowerCase(),
+          username: form.username.trim(),
           password: form.password
         })
       });
