@@ -1,7 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 function Navbar() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   let user = null;
   try { user = JSON.parse(localStorage.getItem("user")); } catch {}
 
@@ -15,10 +16,10 @@ function Navbar() {
     <nav className="navbar">
       <span className="navbar-brand">AI Smart Security</span>
       <div className="navbar-links">
-        <Link to="/upload" className="nav-link">Home</Link>
-        <Link to="/history" className="nav-link">History</Link>
+        <Link to="/upload" className={`nav-link${pathname === "/upload" ? " nav-link--active" : ""}`}>Home</Link>
+        <Link to="/history" className={`nav-link${pathname === "/history" ? " nav-link--active" : ""}`}>History</Link>
         {user?.role === "admin" && (
-          <Link to="/admin" className="nav-link nav-link--admin">Admin</Link>
+          <Link to="/admin" className={`nav-link nav-link--admin${pathname === "/admin" ? " nav-link--active" : ""}`}>Admin</Link>
         )}
       </div>
       <div className="navbar-right">
