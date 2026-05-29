@@ -55,7 +55,49 @@ Example:
 ```env
 PORT=5001
 MONGODB_URI=mongodb://127.0.0.1:27017/ai-smart-security-system
+JWT_SECRET=replace-with-a-long-random-secret
+AI_API_URL=http://localhost:8000/analyze
 ```
+
+For the frontend, create `client/.env` if the backend URL is different:
+
+```env
+VITE_API_URL=http://localhost:5001/api
+```
+
+## Main Flow
+
+1. A user signs up or logs in.
+2. The user uploads a video from the dashboard.
+3. The Node.js server stores the video metadata in MongoDB.
+4. The server calls the Python AI API at `/analyze`.
+5. The analysis result is stored in MongoDB and displayed in the dashboard.
+
+The expected AI response can include violent time ranges:
+
+```json
+{
+  "is_violent": true,
+  "total_clips": 5,
+  "violent_segments": [
+    {
+      "clip_index": 2,
+      "start_second": 6,
+      "end_second": 9,
+      "confidence": 0.87
+    }
+  ],
+  "status": "success"
+}
+```
+
+## MongoDB Collections
+
+- `users` - authentication, status, and role permissions.
+- `videos` - uploaded video metadata and processing status.
+- `analysisresults` - AI result, violence flag, total clips, and detected time ranges.
+
+The first registered user becomes `admin`. Additional users are created with the `user` role.
 
 ## Repository
 
