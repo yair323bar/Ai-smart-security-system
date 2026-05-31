@@ -27,39 +27,6 @@ async function apiRequest(path, options = {}) {
   return body;
 }
 
-function Landing({ onStart }) {
-  return (
-    <section className="landing">
-      <div className="landing__content">
-        <p className="eyebrow">AI Smart Security System</p>
-        <h1>Detect violence in uploaded videos and show the exact time ranges.</h1>
-        <p className="landing__text">
-          A full-stack security dashboard for uploading videos, analyzing them through an AI
-          service, storing results in MongoDB, and reviewing detection history by user role.
-        </p>
-        <button className="primary-button" type="button" onClick={onStart}>
-          Start
-        </button>
-      </div>
-
-      <div className="landing__panel" aria-label="System summary">
-        <div>
-          <span>Pipeline</span>
-          <strong>Upload to AI to MongoDB to Results</strong>
-        </div>
-        <div>
-          <span>Output</span>
-          <strong>Violence: Yes/No + timestamps</strong>
-        </div>
-        <div>
-          <span>Roles</span>
-          <strong>Admin, Operator, User</strong>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function AuthField({ id, label, type = "text", value, onChange }) {
   return (
     <label className="field-row" htmlFor={id}>
@@ -125,8 +92,9 @@ function AuthScreen({ onAuthenticated }) {
   };
 
   return (
-    <section className="auth-card" aria-labelledby="auth-title">
-      <h1 id="auth-title">{isSignup ? "Create Account" : "Login"}</h1>
+    <section className={`auth-card ${isSignup ? "auth-card--signup" : ""}`} aria-labelledby="auth-title">
+      <p className="auth-brand">AI Smart Security System</p>
+      <h1 id="auth-title">{isSignup ? "Sign up" : "Login"}</h1>
       <form className="auth-form" onSubmit={submit}>
         {isSignup && (
           <>
@@ -155,13 +123,13 @@ function AuthScreen({ onAuthenticated }) {
 
         {error && <p className="form-error">{error}</p>}
 
-        <button className="primary-button" type="submit" disabled={loading}>
+        <button className="auth-submit" type="submit" disabled={loading}>
           {loading ? "Please wait..." : isSignup ? "Sign Up" : "Login"}
         </button>
       </form>
 
-      <button className="text-button" type="button" onClick={() => setMode(isSignup ? "login" : "signup")}>
-        {isSignup ? "Already have an account? Login" : "Need an account? Sign up"}
+      <button className="auth-switch-button" type="button" onClick={() => setMode(isSignup ? "login" : "signup")}>
+        {isSignup ? "Already have an account? Click to login" : "Don't have an account? Click to sign up"}
       </button>
     </section>
   );
@@ -199,6 +167,16 @@ function Dashboard({ user, onLogout }) {
   const [loading, setLoading] = useState(false);
 
   const canViewAll = useMemo(() => ["admin", "operator"].includes(user.role), [user.role]);
+  const stats = useMemo(() => {
+    const completed = videos.filter((video) => video.status === "completed").length;
+    const analyzing = videos.filter((video) => video.status === "analyzing").length;
+
+    return {
+      total: videos.length,
+      completed,
+      analyzing
+    };
+  }, [videos]);
 
   const loadVideos = async () => {
     const data = await apiRequest("/videos");
@@ -256,10 +234,11 @@ function Dashboard({ user, onLogout }) {
     <main className="dashboard">
       <header className="topbar">
         <div>
-          <span>AI Smart Security</span>
-          <strong>{user.firstName} {user.lastName}</strong>
+          <span>AI Smart Security System</span>
+          <strong>Video Violence Detection</strong>
         </div>
         <div className="topbar__actions">
+          <span className="user-name">{user.firstName} {user.lastName}</span>
           <span className="role-pill">{user.role}</span>
           <button className="secondary-button" type="button" onClick={onLogout}>
             Logout
@@ -267,23 +246,42 @@ function Dashboard({ user, onLogout }) {
         </div>
       </header>
 
+      <section className="stats-grid" aria-label="Video analysis overview">
+        <div className="stat-card">
+          <span>Total Videos</span>
+          <strong>{stats.total}</strong>
+        </div>
+        <div className="stat-card">
+          <span>Completed</span>
+          <strong>{stats.completed}</strong>
+        </div>
+        <div className="stat-card">
+          <span>Analyzing</span>
+          <strong>{stats.analyzing}</strong>
+        </div>
+      </section>
+
       <section className="dashboard-grid">
-        <form className="tool-panel" onSubmit={uploadAndAnalyze}>
+        <form className="tool-panel upload-panel" onSubmit={uploadAndAnalyze}>
           <h2>Upload Video</h2>
           <p>Choose an MP4 video. The backend will send it to the Python AI API.</p>
-          <input
-            className="file-input"
-            type="file"
-            accept="video/*"
-            onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
-          />
+          <label className="upload-dropzone">
+            <input
+              className="file-input"
+              type="file"
+              accept="video/*"
+              onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
+            />
+            <span>{selectedFile ? selectedFile.name : "Select video file"}</span>
+            <small>MP4 or any supported video format</small>
+          </label>
           <button className="primary-button" type="submit" disabled={loading}>
             {loading ? "Working..." : "Upload & Analyze"}
           </button>
           {message && <p className="status-message">{message}</p>}
         </form>
 
-        <section className="tool-panel">
+        <section className="tool-panel result-panel">
           <h2>Analysis Result</h2>
           <ResultSummary result={activeResult} />
         </section>
@@ -314,7 +312,7 @@ function Dashboard({ user, onLogout }) {
               {videos.map((video) => (
                 <tr key={video._id}>
                   <td>{video.originalName}</td>
-                  <td>{video.status}</td>
+                  <td><span className={`status-badge status-badge--${video.status}`}>{video.status}</span></td>
                   <td>{new Date(video.createdAt).toLocaleString()}</td>
                   <td>
                     <button className="text-button" type="button" onClick={() => viewResult(video._id)}>
@@ -337,7 +335,6 @@ function Dashboard({ user, onLogout }) {
 }
 
 function App() {
-  const [screen, setScreen] = useState("landing");
   const [user, setUser] = useState(null);
   const [booting, setBooting] = useState(true);
 
@@ -352,7 +349,6 @@ function App() {
     apiRequest("/auth/me")
       .then((data) => {
         setUser(data.user);
-        setScreen("dashboard");
       })
       .catch(() => localStorage.removeItem(TOKEN_KEY))
       .finally(() => setBooting(false));
@@ -361,7 +357,6 @@ function App() {
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY);
     setUser(null);
-    setScreen("landing");
   };
 
   if (booting) {
@@ -369,13 +364,12 @@ function App() {
   }
 
   return (
-    <div className="page-shell">
-      {screen === "landing" && <Landing onStart={() => setScreen("auth")} />}
-      {screen === "auth" && <AuthScreen onAuthenticated={(nextUser) => {
-        setUser(nextUser);
-        setScreen("dashboard");
-      }} />}
-      {screen === "dashboard" && user && <Dashboard user={user} onLogout={logout} />}
+    <div className={`page-shell ${user ? "page-shell--dashboard" : "page-shell--auth"}`}>
+      {user ? (
+        <Dashboard user={user} onLogout={logout} />
+      ) : (
+        <AuthScreen onAuthenticated={(nextUser) => setUser(nextUser)} />
+      )}
     </div>
   );
 }
