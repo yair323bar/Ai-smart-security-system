@@ -167,6 +167,16 @@ function Dashboard({ user, onLogout }) {
   const [loading, setLoading] = useState(false);
 
   const canViewAll = useMemo(() => ["admin", "operator"].includes(user.role), [user.role]);
+  const stats = useMemo(() => {
+    const completed = videos.filter((video) => video.status === "completed").length;
+    const analyzing = videos.filter((video) => video.status === "analyzing").length;
+
+    return {
+      total: videos.length,
+      completed,
+      analyzing
+    };
+  }, [videos]);
 
   const loadVideos = async () => {
     const data = await apiRequest("/videos");
@@ -224,10 +234,11 @@ function Dashboard({ user, onLogout }) {
     <main className="dashboard">
       <header className="topbar">
         <div>
-          <span>AI Smart Security</span>
-          <strong>{user.firstName} {user.lastName}</strong>
+          <span>AI Smart Security System</span>
+          <strong>Video Violence Detection</strong>
         </div>
         <div className="topbar__actions">
+          <span className="user-name">{user.firstName} {user.lastName}</span>
           <span className="role-pill">{user.role}</span>
           <button className="secondary-button" type="button" onClick={onLogout}>
             Logout
@@ -235,23 +246,42 @@ function Dashboard({ user, onLogout }) {
         </div>
       </header>
 
+      <section className="stats-grid" aria-label="Video analysis overview">
+        <div className="stat-card">
+          <span>Total Videos</span>
+          <strong>{stats.total}</strong>
+        </div>
+        <div className="stat-card">
+          <span>Completed</span>
+          <strong>{stats.completed}</strong>
+        </div>
+        <div className="stat-card">
+          <span>Analyzing</span>
+          <strong>{stats.analyzing}</strong>
+        </div>
+      </section>
+
       <section className="dashboard-grid">
-        <form className="tool-panel" onSubmit={uploadAndAnalyze}>
+        <form className="tool-panel upload-panel" onSubmit={uploadAndAnalyze}>
           <h2>Upload Video</h2>
           <p>Choose an MP4 video. The backend will send it to the Python AI API.</p>
-          <input
-            className="file-input"
-            type="file"
-            accept="video/*"
-            onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
-          />
+          <label className="upload-dropzone">
+            <input
+              className="file-input"
+              type="file"
+              accept="video/*"
+              onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
+            />
+            <span>{selectedFile ? selectedFile.name : "Select video file"}</span>
+            <small>MP4 or any supported video format</small>
+          </label>
           <button className="primary-button" type="submit" disabled={loading}>
             {loading ? "Working..." : "Upload & Analyze"}
           </button>
           {message && <p className="status-message">{message}</p>}
         </form>
 
-        <section className="tool-panel">
+        <section className="tool-panel result-panel">
           <h2>Analysis Result</h2>
           <ResultSummary result={activeResult} />
         </section>
@@ -282,7 +312,7 @@ function Dashboard({ user, onLogout }) {
               {videos.map((video) => (
                 <tr key={video._id}>
                   <td>{video.originalName}</td>
-                  <td>{video.status}</td>
+                  <td><span className={`status-badge status-badge--${video.status}`}>{video.status}</span></td>
                   <td>{new Date(video.createdAt).toLocaleString()}</td>
                   <td>
                     <button className="text-button" type="button" onClick={() => viewResult(video._id)}>
