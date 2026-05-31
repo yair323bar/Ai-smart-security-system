@@ -27,39 +27,6 @@ async function apiRequest(path, options = {}) {
   return body;
 }
 
-function Landing({ onStart }) {
-  return (
-    <section className="landing">
-      <div className="landing__content">
-        <p className="eyebrow">AI Smart Security System</p>
-        <h1>Detect violence in uploaded videos and show the exact time ranges.</h1>
-        <p className="landing__text">
-          A full-stack security dashboard for uploading videos, analyzing them through an AI
-          service, storing results in MongoDB, and reviewing detection history by user role.
-        </p>
-        <button className="primary-button" type="button" onClick={onStart}>
-          Start
-        </button>
-      </div>
-
-      <div className="landing__panel" aria-label="System summary">
-        <div>
-          <span>Pipeline</span>
-          <strong>Upload to AI to MongoDB to Results</strong>
-        </div>
-        <div>
-          <span>Output</span>
-          <strong>Violence: Yes/No + timestamps</strong>
-        </div>
-        <div>
-          <span>Roles</span>
-          <strong>Admin, Operator, User</strong>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function AuthField({ id, label, type = "text", value, onChange }) {
   return (
     <label className="field-row" htmlFor={id}>
@@ -125,8 +92,9 @@ function AuthScreen({ onAuthenticated }) {
   };
 
   return (
-    <section className="auth-card" aria-labelledby="auth-title">
-      <h1 id="auth-title">{isSignup ? "Create Account" : "Login"}</h1>
+    <section className={`auth-card ${isSignup ? "auth-card--signup" : ""}`} aria-labelledby="auth-title">
+      <p className="auth-brand">AI Smart Security System</p>
+      <h1 id="auth-title">{isSignup ? "Sign up" : "Login"}</h1>
       <form className="auth-form" onSubmit={submit}>
         {isSignup && (
           <>
@@ -155,13 +123,13 @@ function AuthScreen({ onAuthenticated }) {
 
         {error && <p className="form-error">{error}</p>}
 
-        <button className="primary-button" type="submit" disabled={loading}>
+        <button className="auth-submit" type="submit" disabled={loading}>
           {loading ? "Please wait..." : isSignup ? "Sign Up" : "Login"}
         </button>
       </form>
 
-      <button className="text-button" type="button" onClick={() => setMode(isSignup ? "login" : "signup")}>
-        {isSignup ? "Already have an account? Login" : "Need an account? Sign up"}
+      <button className="auth-switch-button" type="button" onClick={() => setMode(isSignup ? "login" : "signup")}>
+        {isSignup ? "Already have an account? Click to login" : "Don't have an account? Click to sign up"}
       </button>
     </section>
   );
@@ -337,7 +305,6 @@ function Dashboard({ user, onLogout }) {
 }
 
 function App() {
-  const [screen, setScreen] = useState("landing");
   const [user, setUser] = useState(null);
   const [booting, setBooting] = useState(true);
 
@@ -352,7 +319,6 @@ function App() {
     apiRequest("/auth/me")
       .then((data) => {
         setUser(data.user);
-        setScreen("dashboard");
       })
       .catch(() => localStorage.removeItem(TOKEN_KEY))
       .finally(() => setBooting(false));
@@ -361,7 +327,6 @@ function App() {
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY);
     setUser(null);
-    setScreen("landing");
   };
 
   if (booting) {
@@ -369,13 +334,12 @@ function App() {
   }
 
   return (
-    <div className="page-shell">
-      {screen === "landing" && <Landing onStart={() => setScreen("auth")} />}
-      {screen === "auth" && <AuthScreen onAuthenticated={(nextUser) => {
-        setUser(nextUser);
-        setScreen("dashboard");
-      }} />}
-      {screen === "dashboard" && user && <Dashboard user={user} onLogout={logout} />}
+    <div className={`page-shell ${user ? "page-shell--dashboard" : "page-shell--auth"}`}>
+      {user ? (
+        <Dashboard user={user} onLogout={logout} />
+      ) : (
+        <AuthScreen onAuthenticated={(nextUser) => setUser(nextUser)} />
+      )}
     </div>
   );
 }
