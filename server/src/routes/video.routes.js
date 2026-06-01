@@ -60,8 +60,17 @@ router.post("/upload", authenticate, upload.single("video"), async (req, res) =>
 
 router.get("/", authenticate, async (req, res) => {
   const query = req.user.role === "admin" ? {} : { userId: req.user._id };
-  const videos = await Video.find(query).sort({ createdAt: -1 });
-  res.json({ videos });
+  const videos = await Video.find(query).sort({ createdAt: -1 }).lean();
+  const videoIds = videos.map((video) => video._id);
+  const results = await AnalysisResult.find({ videoId: { $in: videoIds } }).lean();
+  const resultsByVideoId = new Map(results.map((result) => [result.videoId.toString(), result]));
+
+  res.json({
+    videos: videos.map((video) => ({
+      ...video,
+      analysisResult: resultsByVideoId.get(video._id.toString()) || null
+    }))
+  });
 });
 
 router.post("/:id/analyze", authenticate, async (req, res) => {

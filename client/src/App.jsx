@@ -158,6 +158,22 @@ function ResultSummary({ result }) {
   );
 }
 
+function getHistoryResultLabel(video) {
+  if (video.analysisResult) {
+    return video.analysisResult.isViolent ? "Violence: Yes" : "Violence: No";
+  }
+
+  if (video.status === "failed") {
+    return "Failed";
+  }
+
+  if (video.status === "analyzing") {
+    return "Analyzing";
+  }
+
+  return "Pending";
+}
+
 function AdminConsole({ currentUser }) {
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
@@ -469,8 +485,13 @@ function Dashboard({ user, onLogout }) {
                       <td><span className={`status-badge status-badge--${video.status}`}>{video.status}</span></td>
                       <td>{new Date(video.createdAt).toLocaleString()}</td>
                       <td>
-                        <button className="text-button" type="button" onClick={() => viewResult(video._id)}>
-                          View
+                        <button
+                          className="text-button"
+                          type="button"
+                          onClick={() => viewResult(video._id)}
+                          disabled={!video.analysisResult}
+                        >
+                          {getHistoryResultLabel(video)}
                         </button>
                       </td>
                     </tr>
