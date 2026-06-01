@@ -208,7 +208,7 @@ function Dashboard({ user, onLogout }) {
         body: formData
       });
 
-      setMessage("Analyzing video. This may take a few minutes on CPU...");
+      setMessage("Analyzing video. This may take a few minutes...");
       const analysis = await apiRequest(`/videos/${upload.video._id}/analyze`, {
         method: "POST"
       });
@@ -291,7 +291,6 @@ function Dashboard({ user, onLogout }) {
         <div className="section-heading">
           <div>
             <h2>{canViewAll ? "All Video History" : "My Video History"}</h2>
-            <p>Results are stored in MongoDB and can be reviewed after analysis.</p>
           </div>
           <button className="secondary-button" type="button" onClick={() => loadVideos()}>
             Refresh
