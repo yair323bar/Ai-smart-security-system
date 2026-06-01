@@ -216,7 +216,7 @@ function AdminConsole({ currentUser }) {
     <section className="admin-console">
       <div className="section-heading">
         <div>
-          <h2>Admin Console</h2>
+          <h2>User Details</h2>
           <p>Manage users, roles, and account access.</p>
         </div>
         <button className="secondary-button" type="button" onClick={loadUsers} disabled={loading}>
@@ -391,22 +391,13 @@ function Dashboard({ user, onLogout }) {
         </div>
         <div className="topbar__actions">
           {isAdmin && (
-            <div className="page-tabs" aria-label="Admin navigation">
-              <button
-                className={activePage === "dashboard" ? "page-tab page-tab--active" : "page-tab"}
-                type="button"
-                onClick={() => setActivePage("dashboard")}
-              >
-                Dashboard
-              </button>
-              <button
-                className={activePage === "admin" ? "page-tab page-tab--active" : "page-tab"}
-                type="button"
-                onClick={() => setActivePage("admin")}
-              >
-                Admin Console
-              </button>
-            </div>
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() => setActivePage(activePage === "dashboard" ? "admin" : "dashboard")}
+            >
+              {activePage === "dashboard" ? "Management" : "Home"}
+            </button>
           )}
           <span className="user-name">{user.firstName} {user.lastName}</span>
           <span className="role-pill">{user.role}</span>

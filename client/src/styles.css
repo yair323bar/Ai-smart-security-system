@@ -282,29 +282,6 @@ input:focus {
   font-weight: 800;
 }
 
-.page-tabs {
-  display: inline-flex;
-  gap: 6px;
-  border: 1px solid #d5dde8;
-  border-radius: 8px;
-  padding: 4px;
-  background: #f3f8fc;
-}
-
-.page-tab {
-  min-height: 36px;
-  border-radius: 6px;
-  padding: 0 12px;
-  background: transparent;
-  color: #506178;
-  font-weight: 900;
-}
-
-.page-tab--active {
-  background: #0f766e;
-  color: #ffffff;
-}
-
 .role-pill {
   border-radius: 999px;
   padding: 8px 12px;
