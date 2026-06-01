@@ -427,7 +427,6 @@ function Dashboard({ user, onLogout }) {
           <section className="dashboard-grid">
             <form className="tool-panel upload-panel" onSubmit={uploadAndAnalyze}>
               <h2>Upload Video</h2>
-              <p>Select a security video and run AI violence detection.</p>
               <label className="upload-dropzone">
                 <input
                   className="file-input"
