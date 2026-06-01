@@ -221,7 +221,6 @@ Expected MongoDB collections:
 ## Roles
 
 - `admin`: can use the video analysis dashboard and access the Admin Console.
-- `operator`: can view all uploaded videos and all analysis history.
 - `user`: can upload videos and view only their own history.
 
 The first registered user becomes `admin`. Every later user is created with the `user` role.
@@ -229,7 +228,7 @@ The first registered user becomes `admin`. Every later user is created with the 
 Admin Console capabilities:
 
 - View all registered users.
-- Change another user's role to `user`, `operator`, or `admin`.
+- Change another user's role to `user` or `admin`.
 - Block or unblock user accounts.
 - Delete users and their related uploaded video analysis data.
 

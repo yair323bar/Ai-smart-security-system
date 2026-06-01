@@ -38,7 +38,7 @@ const upload = multer({
 });
 
 function canAccessVideo(user, video) {
-  return ["admin", "operator"].includes(user.role) || video.userId.toString() === user._id.toString();
+  return user.role === "admin" || video.userId.toString() === user._id.toString();
 }
 
 router.post("/upload", authenticate, upload.single("video"), async (req, res) => {
@@ -59,7 +59,7 @@ router.post("/upload", authenticate, upload.single("video"), async (req, res) =>
 });
 
 router.get("/", authenticate, async (req, res) => {
-  const query = ["admin", "operator"].includes(req.user.role) ? {} : { userId: req.user._id };
+  const query = req.user.role === "admin" ? {} : { userId: req.user._id };
   const videos = await Video.find(query).sort({ createdAt: -1 });
   res.json({ videos });
 });

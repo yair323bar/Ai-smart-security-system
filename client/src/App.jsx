@@ -258,7 +258,6 @@ function AdminConsole({ currentUser }) {
                       }
                     >
                       <option value="user">user</option>
-                      <option value="operator">operator</option>
                       <option value="admin">admin</option>
                     </select>
                   </td>
@@ -318,7 +317,7 @@ function Dashboard({ user, onLogout }) {
   const [activePage, setActivePage] = useState("dashboard");
 
   const isAdmin = user.role === "admin";
-  const canViewAll = useMemo(() => ["admin", "operator"].includes(user.role), [user.role]);
+  const canViewAll = isAdmin;
   const stats = useMemo(() => {
     const completed = videos.filter((video) => video.status === "completed").length;
     const analyzing = videos.filter((video) => video.status === "analyzing").length;
