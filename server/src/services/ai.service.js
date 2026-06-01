@@ -1,4 +1,5 @@
 const DEFAULT_AI_API_URL = "http://localhost:8000/analyze";
+const DEFAULT_AI_TIMEOUT_MS = 180000;
 
 function normalizeSegments(response) {
   const segments = response.violent_segments || response.violent_clips || [];
@@ -13,11 +14,30 @@ function normalizeSegments(response) {
 
 export async function analyzeVideoWithAI(videoPath) {
   const url = process.env.AI_API_URL || DEFAULT_AI_API_URL;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ source: videoPath })
-  });
+  const timeoutMs = Number(process.env.AI_TIMEOUT_MS || DEFAULT_AI_TIMEOUT_MS);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  let response;
+
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ source: videoPath }),
+      signal: controller.signal
+    });
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error(
+        `AI analysis timed out after ${Math.round(timeoutMs / 1000)} seconds. Try a shorter video or run the model on a faster machine.`
+      );
+    }
+
+    throw new Error("Could not connect to the AI analysis service. Make sure the Python API is running on port 8000.");
+  } finally {
+    clearTimeout(timeout);
+  }
 
   const body = await response.json().catch(() => null);
 

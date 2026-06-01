@@ -21,7 +21,7 @@ async function apiRequest(path, options = {}) {
   const body = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(body.message || body.detail || "Request failed");
+    throw new Error(body.detail ? `${body.message}: ${body.detail}` : body.message || "Request failed");
   }
 
   return body;
@@ -191,7 +191,7 @@ function Dashboard({ user, onLogout }) {
     event.preventDefault();
 
     if (!selectedFile) {
-      setMessage("Choose a video first");
+      setMessage("Please select a video before starting analysis.");
       return;
     }
 
@@ -208,7 +208,7 @@ function Dashboard({ user, onLogout }) {
         body: formData
       });
 
-      setMessage("Analyzing video with the AI model...");
+      setMessage("Analyzing video. This may take a few minutes on CPU...");
       const analysis = await apiRequest(`/videos/${upload.video._id}/analyze`, {
         method: "POST"
       });
@@ -264,7 +264,7 @@ function Dashboard({ user, onLogout }) {
       <section className="dashboard-grid">
         <form className="tool-panel upload-panel" onSubmit={uploadAndAnalyze}>
           <h2>Upload Video</h2>
-          <p>Choose an MP4 video. The backend will send it to the Python AI API.</p>
+          <p>Select a security video and run AI violence detection.</p>
           <label className="upload-dropzone">
             <input
               className="file-input"
