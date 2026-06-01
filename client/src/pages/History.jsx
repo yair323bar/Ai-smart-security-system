@@ -29,11 +29,15 @@ function History() {
       .catch(() => setLoading(false));
   }, []);
 
-  const formatDate = (dateStr) =>
-    new Date(dateStr).toLocaleDateString("en-GB", {
-      day: "2-digit", month: "short", year: "numeric",
-      hour: "2-digit", minute: "2-digit"
-    });
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const diffMs = Date.now() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  };
 
   return (
     <div className="page-shell page-shell--dashboard">
