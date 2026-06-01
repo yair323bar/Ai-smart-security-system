@@ -159,13 +159,165 @@ function ResultSummary({ result }) {
   );
 }
 
+function AdminConsole({ currentUser }) {
+  const [users, setUsers] = useState([]);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const loadUsers = async () => {
+    const data = await apiRequest("/users");
+    setUsers(data.users);
+  };
+
+  useEffect(() => {
+    loadUsers().catch((err) => setMessage(err.message));
+  }, []);
+
+  const updateUser = async (userId, path, payload, successMessage) => {
+    setLoading(true);
+    setMessage("");
+
+    try {
+      await apiRequest(`/users/${userId}/${path}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload)
+      });
+      setMessage(successMessage);
+      await loadUsers();
+    } catch (err) {
+      setMessage(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteUser = async (managedUser) => {
+    const approved = window.confirm(`Delete ${managedUser.username} and all related video data?`);
+
+    if (!approved) {
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      await apiRequest(`/users/${managedUser.id}`, { method: "DELETE" });
+      setMessage("User deleted successfully");
+      await loadUsers();
+    } catch (err) {
+      setMessage(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="admin-console">
+      <div className="section-heading">
+        <div>
+          <h2>Admin Console</h2>
+          <p>Manage users, roles, and account access.</p>
+        </div>
+        <button className="secondary-button" type="button" onClick={loadUsers} disabled={loading}>
+          Refresh
+        </button>
+      </div>
+
+      {message && <p className="status-message">{message}</p>}
+
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((managedUser) => {
+              const isSelf = managedUser.id === currentUser.id;
+
+              return (
+                <tr key={managedUser.id}>
+                  <td>
+                    <strong>{managedUser.firstName} {managedUser.lastName}</strong>
+                    <span className="muted-cell">@{managedUser.username}</span>
+                  </td>
+                  <td>{managedUser.email}</td>
+                  <td>
+                    <select
+                      className="role-select"
+                      value={managedUser.role}
+                      disabled={loading || isSelf}
+                      onChange={(event) =>
+                        updateUser(managedUser.id, "role", { role: event.target.value }, "Role updated successfully")
+                      }
+                    >
+                      <option value="user">user</option>
+                      <option value="operator">operator</option>
+                      <option value="admin">admin</option>
+                    </select>
+                  </td>
+                  <td>
+                    <span className={`status-badge status-badge--${managedUser.status}`}>
+                      {managedUser.status}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-row">
+                      <button
+                        className="secondary-button action-button"
+                        type="button"
+                        disabled={loading || isSelf}
+                        onClick={() =>
+                          updateUser(
+                            managedUser.id,
+                            "status",
+                            { status: managedUser.status === "active" ? "disabled" : "active" },
+                            managedUser.status === "active" ? "User blocked successfully" : "User unblocked successfully"
+                          )
+                        }
+                      >
+                        {managedUser.status === "active" ? "Block" : "Unblock"}
+                      </button>
+                      <button
+                        className="danger-button action-button"
+                        type="button"
+                        disabled={loading || isSelf}
+                        onClick={() => deleteUser(managedUser)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+            {users.length === 0 && (
+              <tr>
+                <td colSpan="5">No users found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 function Dashboard({ user, onLogout }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [videos, setVideos] = useState([]);
   const [activeResult, setActiveResult] = useState(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activePage, setActivePage] = useState("dashboard");
 
+  const isAdmin = user.role === "admin";
   const canViewAll = useMemo(() => ["admin", "operator"].includes(user.role), [user.role]);
   const stats = useMemo(() => {
     const completed = videos.filter((video) => video.status === "completed").length;
@@ -238,6 +390,24 @@ function Dashboard({ user, onLogout }) {
           <strong>Video Violence Detection</strong>
         </div>
         <div className="topbar__actions">
+          {isAdmin && (
+            <div className="page-tabs" aria-label="Admin navigation">
+              <button
+                className={activePage === "dashboard" ? "page-tab page-tab--active" : "page-tab"}
+                type="button"
+                onClick={() => setActivePage("dashboard")}
+              >
+                Dashboard
+              </button>
+              <button
+                className={activePage === "admin" ? "page-tab page-tab--active" : "page-tab"}
+                type="button"
+                onClick={() => setActivePage("admin")}
+              >
+                Admin Console
+              </button>
+            </div>
+          )}
           <span className="user-name">{user.firstName} {user.lastName}</span>
           <span className="role-pill">{user.role}</span>
           <button className="secondary-button" type="button" onClick={onLogout}>
@@ -246,89 +416,95 @@ function Dashboard({ user, onLogout }) {
         </div>
       </header>
 
-      <section className="stats-grid" aria-label="Video analysis overview">
-        <div className="stat-card">
-          <span>Total Videos</span>
-          <strong>{stats.total}</strong>
-        </div>
-        <div className="stat-card">
-          <span>Completed</span>
-          <strong>{stats.completed}</strong>
-        </div>
-        <div className="stat-card">
-          <span>Analyzing</span>
-          <strong>{stats.analyzing}</strong>
-        </div>
-      </section>
+      {activePage === "admin" && isAdmin ? (
+        <AdminConsole currentUser={user} />
+      ) : (
+        <>
+          <section className="stats-grid" aria-label="Video analysis overview">
+            <div className="stat-card">
+              <span>Total Videos</span>
+              <strong>{stats.total}</strong>
+            </div>
+            <div className="stat-card">
+              <span>Completed</span>
+              <strong>{stats.completed}</strong>
+            </div>
+            <div className="stat-card">
+              <span>Analyzing</span>
+              <strong>{stats.analyzing}</strong>
+            </div>
+          </section>
 
-      <section className="dashboard-grid">
-        <form className="tool-panel upload-panel" onSubmit={uploadAndAnalyze}>
-          <h2>Upload Video</h2>
-          <p>Select a security video and run AI violence detection.</p>
-          <label className="upload-dropzone">
-            <input
-              className="file-input"
-              type="file"
-              accept="video/*"
-              onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
-            />
-            <span>{selectedFile ? selectedFile.name : "Select video file"}</span>
-            <small>MP4 or any supported video format</small>
-          </label>
-          <button className="primary-button" type="submit" disabled={loading}>
-            {loading ? "Working..." : "Upload & Analyze"}
-          </button>
-          {message && <p className="status-message">{message}</p>}
-        </form>
+          <section className="dashboard-grid">
+            <form className="tool-panel upload-panel" onSubmit={uploadAndAnalyze}>
+              <h2>Upload Video</h2>
+              <p>Select a security video and run AI violence detection.</p>
+              <label className="upload-dropzone">
+                <input
+                  className="file-input"
+                  type="file"
+                  accept="video/*"
+                  onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
+                />
+                <span>{selectedFile ? selectedFile.name : "Select video file"}</span>
+                <small>MP4 or any supported video format</small>
+              </label>
+              <button className="primary-button" type="submit" disabled={loading}>
+                {loading ? "Working..." : "Upload & Analyze"}
+              </button>
+              {message && <p className="status-message">{message}</p>}
+            </form>
 
-        <section className="tool-panel result-panel">
-          <h2>Analysis Result</h2>
-          <ResultSummary result={activeResult} />
-        </section>
-      </section>
+            <section className="tool-panel result-panel">
+              <h2>Analysis Result</h2>
+              <ResultSummary result={activeResult} />
+            </section>
+          </section>
 
-      <section className="history-panel">
-        <div className="section-heading">
-          <div>
-            <h2>{canViewAll ? "All Video History" : "My Video History"}</h2>
-          </div>
-          <button className="secondary-button" type="button" onClick={() => loadVideos()}>
-            Refresh
-          </button>
-        </div>
+          <section className="history-panel">
+            <div className="section-heading">
+              <div>
+                <h2>{canViewAll ? "All Video History" : "My Video History"}</h2>
+              </div>
+              <button className="secondary-button" type="button" onClick={() => loadVideos()}>
+                Refresh
+              </button>
+            </div>
 
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Video</th>
-                <th>Status</th>
-                <th>Uploaded</th>
-                <th>Result</th>
-              </tr>
-            </thead>
-            <tbody>
-              {videos.map((video) => (
-                <tr key={video._id}>
-                  <td>{video.originalName}</td>
-                  <td><span className={`status-badge status-badge--${video.status}`}>{video.status}</span></td>
-                  <td>{new Date(video.createdAt).toLocaleString()}</td>
-                  <td>
-                    <button className="text-button" type="button" onClick={() => viewResult(video._id)}>
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {videos.length === 0 && (
-                <tr>
-                  <td colSpan="4">No videos uploaded yet.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Video</th>
+                    <th>Status</th>
+                    <th>Uploaded</th>
+                    <th>Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {videos.map((video) => (
+                    <tr key={video._id}>
+                      <td>{video.originalName}</td>
+                      <td><span className={`status-badge status-badge--${video.status}`}>{video.status}</span></td>
+                      <td>{new Date(video.createdAt).toLocaleString()}</td>
+                      <td>
+                        <button className="text-button" type="button" onClick={() => viewResult(video._id)}>
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {videos.length === 0 && (
+                    <tr>
+                      <td colSpan="4">No videos uploaded yet.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </>
+      )}
     </main>
   );
 }

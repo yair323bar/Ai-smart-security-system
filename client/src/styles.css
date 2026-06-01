@@ -215,6 +215,19 @@ input:focus {
   color: #172033;
 }
 
+.danger-button {
+  min-height: 44px;
+  border-radius: 8px;
+  padding: 0 18px;
+  background: #ffe0dd;
+  color: #9f1d16;
+  font-weight: 900;
+}
+
+.danger-button:hover {
+  background: #ffc9c3;
+}
+
 .dashboard {
   max-width: 1180px;
   margin: 0 auto;
@@ -243,6 +256,7 @@ input:focus {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .topbar span,
@@ -266,6 +280,29 @@ input:focus {
 .user-name {
   color: #06142b;
   font-weight: 800;
+}
+
+.page-tabs {
+  display: inline-flex;
+  gap: 6px;
+  border: 1px solid #d5dde8;
+  border-radius: 8px;
+  padding: 4px;
+  background: #f3f8fc;
+}
+
+.page-tab {
+  min-height: 36px;
+  border-radius: 6px;
+  padding: 0 12px;
+  background: transparent;
+  color: #506178;
+  font-weight: 900;
+}
+
+.page-tab--active {
+  background: #0f766e;
+  color: #ffffff;
 }
 
 .role-pill {
@@ -415,6 +452,14 @@ input:focus {
   margin-top: 22px;
 }
 
+.admin-console {
+  border: 1px solid #d5dde8;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 50px rgba(48, 66, 92, 0.12);
+  padding: 24px;
+}
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -430,6 +475,34 @@ td {
   padding: 14px 10px;
   border-bottom: 1px solid #dfe6ef;
   text-align: left;
+}
+
+.muted-cell {
+  display: block;
+  margin-top: 4px;
+  color: #63758a;
+  font-size: 0.9rem;
+}
+
+.role-select {
+  min-height: 38px;
+  border: 1px solid #b9c4d2;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #ffffff;
+  color: #071427;
+  font-weight: 800;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.action-button {
+  min-height: 36px;
+  padding: 0 12px;
 }
 
 th {
@@ -467,6 +540,16 @@ th {
 }
 
 .status-badge--failed {
+  background: #ffe0dd;
+  color: #9f1d16;
+}
+
+.status-badge--active {
+  background: #dff7ee;
+  color: #0f5f57;
+}
+
+.status-badge--disabled {
   background: #ffe0dd;
   color: #9f1d16;
 }

@@ -57,7 +57,7 @@ router.post("/login", async (req, res) => {
   }
 
   if (user.status !== "active") {
-    return res.status(403).json({ message: "User is disabled" });
+    return res.status(403).json({ message: "Your account has been blocked. Please contact the system administrator." });
   }
 
   user.lastLoginAt = new Date();
