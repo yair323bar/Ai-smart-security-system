@@ -80,6 +80,7 @@ PORT=5001
 MONGODB_URI=mongodb://127.0.0.1:27017/ai-smart-security-system
 JWT_SECRET=replace-with-a-long-random-secret
 AI_API_URL=http://localhost:8000/analyze
+AI_TIMEOUT_MS=180000
 ```
 
 If the backend runs on a different port, create:
@@ -253,6 +254,7 @@ AI analysis failed:
 - Make sure the Python API is running.
 - Make sure `AI_API_URL=http://localhost:8000/analyze` is set in `server/.env`.
 - Make sure the uploaded file path exists.
+- Large videos can take several minutes on CPU. Use a short test video first, or increase `AI_TIMEOUT_MS` in `server/.env`.
 
 Frontend cannot reach backend:
 
