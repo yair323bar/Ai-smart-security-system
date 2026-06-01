@@ -185,6 +185,11 @@ input:focus {
   text-decoration: underline;
 }
 
+.text-button:disabled {
+  color: #52647c;
+  text-decoration: none;
+}
+
 .form-error {
   margin: 0;
   color: #b42318;
