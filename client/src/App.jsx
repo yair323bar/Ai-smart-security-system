@@ -144,7 +144,6 @@ function ResultSummary({ result }) {
     <div className={`result-box ${result.isViolent ? "result-box--danger" : "result-box--safe"}`}>
       <span>{result.isViolent ? "Violence detected" : "No violence detected"}</span>
       <strong>{result.isViolent ? "Yes" : "No"}</strong>
-      <p>Total clips analyzed: {result.totalClips}</p>
 
       {result.violentSegments?.length > 0 && (
         <div className="segments">
