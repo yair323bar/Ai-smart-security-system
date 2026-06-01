@@ -217,7 +217,6 @@ function AdminConsole({ currentUser }) {
       <div className="section-heading">
         <div>
           <h2>User Details</h2>
-          <p>Manage users, roles, and account access.</p>
         </div>
         <button className="secondary-button" type="button" onClick={loadUsers} disabled={loading}>
           Refresh
