@@ -319,12 +319,10 @@ function Dashboard({ user, onLogout }) {
   const canViewAll = isAdmin;
   const stats = useMemo(() => {
     const completed = videos.filter((video) => video.status === "completed").length;
-    const analyzing = videos.filter((video) => video.status === "analyzing").length;
 
     return {
       total: videos.length,
-      completed,
-      analyzing
+      completed
     };
   }, [videos]);
 
@@ -417,10 +415,6 @@ function Dashboard({ user, onLogout }) {
             <div className="stat-card">
               <span>Completed</span>
               <strong>{stats.completed}</strong>
-            </div>
-            <div className="stat-card">
-              <span>Analyzing</span>
-              <strong>{stats.analyzing}</strong>
             </div>
           </section>
 
