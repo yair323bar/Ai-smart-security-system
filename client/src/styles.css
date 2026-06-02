@@ -185,11 +185,6 @@ input:focus {
   text-decoration: underline;
 }
 
-.text-button:disabled {
-  color: #52647c;
-  text-decoration: none;
-}
-
 .form-error {
   margin: 0;
   color: #b42318;
@@ -534,6 +529,30 @@ th {
 .status-badge--disabled {
   background: #ffe0dd;
   color: #9f1d16;
+}
+
+.result-label {
+  display: inline-flex;
+  min-width: 72px;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.result-label--yes {
+  background: #dff7ee;
+  color: #08715f;
+}
+
+.result-label--no {
+  background: #ffe0dd;
+  color: #9f1d16;
+}
+
+.result-label--muted {
+  color: #7a8798;
 }
 
 @media (max-width: 820px) {
