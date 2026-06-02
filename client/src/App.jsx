@@ -447,12 +447,14 @@ function Dashboard({ user, onLogout }) {
                 {loading ? "Working..." : "Upload & Analyze"}
               </button>
               {message && <p className="status-message">{message}</p>}
-            </form>
 
-            <section className="tool-panel result-panel">
-              <h2>Analysis Result</h2>
-              <ResultSummary result={activeResult} />
-            </section>
+              {activeResult && (
+                <div className="inline-result">
+                  <h3>Analysis Result</h3>
+                  <ResultSummary result={activeResult} />
+                </div>
+              )}
+            </form>
           </section>
 
           <section className="history-panel">

@@ -326,7 +326,7 @@ input:focus {
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+  grid-template-columns: minmax(0, 820px);
   gap: 22px;
 }
 
@@ -387,13 +387,24 @@ input:focus {
   font-weight: 700;
 }
 
+.inline-result {
+  margin-top: 22px;
+  border-top: 1px solid #d9e2ec;
+  padding-top: 20px;
+}
+
+.inline-result h3 {
+  margin: 0 0 14px;
+  font-size: 1.25rem;
+}
+
 .result-box {
   display: grid;
   gap: 10px;
   border-radius: 8px;
   padding: 20px;
   border: 1px solid #d9e2ec;
-  min-height: 180px;
+  min-height: 132px;
   align-content: center;
 }
 
