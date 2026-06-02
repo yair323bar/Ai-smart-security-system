@@ -158,20 +158,23 @@ function ResultSummary({ result }) {
   );
 }
 
-function getHistoryResultLabel(video) {
+function getHistoryResult(video) {
   if (video.analysisResult) {
-    return video.analysisResult.isViolent ? "Violence: Yes" : "Violence: No";
+    return {
+      label: video.analysisResult.isViolent ? "YES" : "NO",
+      tone: video.analysisResult.isViolent ? "yes" : "no"
+    };
   }
 
   if (video.status === "failed") {
-    return "Failed";
+    return { label: "Failed", tone: "muted" };
   }
 
   if (video.status === "analyzing") {
-    return "Analyzing";
+    return { label: "Analyzing", tone: "muted" };
   }
 
-  return "Pending";
+  return { label: "Pending", tone: "muted" };
 }
 
 function AdminConsole({ currentUser }) {
@@ -387,12 +390,6 @@ function Dashboard({ user, onLogout }) {
     }
   };
 
-  const viewResult = async (videoId) => {
-    setMessage("");
-    const data = await apiRequest(`/videos/${videoId}/result`);
-    setActiveResult(data.result);
-  };
-
   return (
     <main className="dashboard">
       <header className="topbar">
@@ -479,23 +476,20 @@ function Dashboard({ user, onLogout }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {videos.map((video) => (
-                    <tr key={video._id}>
-                      <td>{video.originalName}</td>
-                      <td><span className={`status-badge status-badge--${video.status}`}>{video.status}</span></td>
-                      <td>{new Date(video.createdAt).toLocaleString()}</td>
-                      <td>
-                        <button
-                          className="text-button"
-                          type="button"
-                          onClick={() => viewResult(video._id)}
-                          disabled={!video.analysisResult}
-                        >
-                          {getHistoryResultLabel(video)}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {videos.map((video) => {
+                    const result = getHistoryResult(video);
+
+                    return (
+                      <tr key={video._id}>
+                        <td>{video.originalName}</td>
+                        <td><span className={`status-badge status-badge--${video.status}`}>{video.status}</span></td>
+                        <td>{new Date(video.createdAt).toLocaleString()}</td>
+                        <td>
+                          <span className={`result-label result-label--${result.tone}`}>{result.label}</span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                   {videos.length === 0 && (
                     <tr>
                       <td colSpan="4">No videos uploaded yet.</td>
