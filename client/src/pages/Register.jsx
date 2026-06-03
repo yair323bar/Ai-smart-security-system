@@ -88,6 +88,9 @@ function Register() {
             <span>Confirm</span>
             <input name="confirmPassword" type="password" value={form.confirmPassword} onChange={update} required />
           </label>
+          {form.password.length > 0 && form.password.length < 6 && (
+            <p className="hint-text">Password must be at least 6 characters</p>
+          )}
 
           {error && <p className="form-error">{error}</p>}
 
