@@ -1,295 +1,230 @@
 # AI Smart Security System
 
-Full-stack web application for uploading security videos, analyzing them with an AI violence detection model, storing the results in MongoDB, and reviewing analysis history through a role-based dashboard.
+A full-stack web application that allows users to upload videos and detect violent content using an AI model. Built as a final project integrating a violence detection model developed by a separate team.
+
+---
+
+## What the System Does
+
+1. Users register and log in to the system
+2. An authenticated user uploads a video file from their computer
+3. The user previews the video and clicks **Analyze Video**
+4. The system sends the video to an AI model (Python FastAPI) that detects violent content
+5. The result — **Violence Detected** or **No Violence Detected** — is displayed and saved
+6. Users can view their full analysis history
+7. Admin users can manage all registered users (roles, blocking, deletion) and view any user's history
+
+---
+
+## Features
+
+- User registration with validation (age 18+, email format, password confirmation)
+- Login with JWT authentication
+- Video upload with drag & drop support and optional custom name
+- AI-powered violence detection per uploaded video
+- Personal history page showing all uploads and their results
+- Admin panel: manage users, change roles, block/unblock, delete
+- Sticky navigation bar with active page indicator
+
+---
 
 ## Tech Stack
 
-- Frontend: React + Vite
-- Backend: Node.js + Express
-- Database: MongoDB + Mongoose
-- Video upload: Multer
-- AI service: Python FastAPI violence detection API
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, React Router v6, Vite |
+| Backend | Node.js, Express |
+| Database | MongoDB, Mongoose |
+| File Upload | Multer |
+| Auth | JWT (custom implementation) |
+| AI Service | Python, FastAPI, PyTorch (MViT model) |
+
+---
+
+## Database Structure
+
+**users**
+| Field | Type | Description |
+|-------|------|-------------|
+| firstName | String | |
+| lastName | String | |
+| age | Number | Must be 18 or older |
+| email | String | Unique, validated format |
+| username | String | Unique |
+| passwordHash | String | Hashed with scrypt |
+| role | String | `user` or `admin` |
+| status | String | `active` or `blocked` |
+
+**videos**
+| Field | Type | Description |
+|-------|------|-------------|
+| userId | ObjectId | Reference to the user who uploaded |
+| displayName | String | Custom name or original filename |
+| originalName | String | Original filename from the user's computer |
+| fileName | String | Saved filename on the server |
+| path | String | Full path used by the AI model |
+| analysisStatus | String | `null` or `failed` |
+
+**analysisresults**
+| Field | Type | Description |
+|-------|------|-------------|
+| videoId | ObjectId | Reference to the analyzed video |
+| isViolent | Boolean | Result from the AI model |
+
+---
 
 ## Project Structure
 
-```text
-ai-smart-security-system/
-  client/
-    src/
-      App.jsx
-      styles.css
-  server/
-    src/
-      config/
-      middleware/
-      models/
-      routes/
-      services/
-      utils/
-    uploads/
-    .env.example
-  README.md
+```
+Ai-smart-security-system/
+├── client/
+│   └── src/
+│       ├── components/
+│       │   └── Navbar.jsx
+│       ├── pages/
+│       │   ├── Login.jsx
+│       │   ├── Register.jsx
+│       │   ├── Upload.jsx
+│       │   ├── VideoPreview.jsx
+│       │   ├── History.jsx
+│       │   └── Admin.jsx
+│       ├── App.jsx
+│       └── styles.css
+└── server/
+    └── src/
+        ├── config/db.js
+        ├── middleware/auth.middleware.js
+        ├── models/
+        │   ├── User.js
+        │   ├── Video.js
+        │   └── AnalysisResult.js
+        ├── routes/
+        │   ├── auth.routes.js
+        │   ├── video.routes.js
+        │   └── admin.routes.js
+        ├── services/ai.service.js
+        └── index.js
 ```
 
-## What The System Does
+---
 
-1. A user signs up or logs in.
-2. The first registered user automatically becomes `admin`.
-3. Authenticated users upload video files from the dashboard.
-4. The Node.js backend stores video metadata in MongoDB.
-5. The backend sends the uploaded video path to the Python AI API.
-6. The AI API returns whether violence was detected.
-7. If supported by the AI API, detected violence time ranges are returned and displayed.
-8. Results are stored in MongoDB and shown in the dashboard history table.
+## Setup and Running
 
-## Required Local Tools
+### Prerequisites
 
-Install these on every computer that runs the project:
+- Node.js 18+
+- Python 3.8+
+- MongoDB (local or Atlas)
+- The AI model release folder: `SmartSecurity_API_Release`
 
-- Node.js 18 or newer
-- Python 3.8 or newer
-- MongoDB Community Server
-- MongoDB Compass, optional but recommended
-- Git
-
-MongoDB must be running locally on:
-
-```text
-mongodb://127.0.0.1:27017
-```
-
-## Initial Setup
-
-Run from the project root:
+### Step 1 — Install dependencies
 
 ```bash
-npm install --prefix client
-npm install --prefix server
+cd client && npm install
+cd ../server && npm install
 ```
 
-Create a real backend environment file:
+### Step 2 — Create environment file
 
-```text
-server/.env
+Copy the example file:
+
+```bash
+cp server/.env.example server/.env
 ```
 
-Copy the content from `server/.env.example` and update the secret:
+Edit `server/.env`:
 
 ```env
 PORT=5001
 MONGODB_URI=mongodb://127.0.0.1:27017/ai-smart-security-system
-JWT_SECRET=replace-with-a-long-random-secret
+JWT_SECRET=your-secret-key-here
 AI_API_URL=http://localhost:8000/analyze
-AI_TIMEOUT_MS=180000
 ```
 
-If the backend runs on a different port, create:
-
-```text
-client/.env
-```
-
-```env
-VITE_API_URL=http://localhost:5001/api
-```
-
-## Connecting The AI Model API
-
-The AI model runs as a separate Python FastAPI service. The Node.js backend does not run the model directly. It sends the uploaded video path to the AI API.
-
-Expected AI API location:
-
-```text
-http://localhost:8000/analyze
-```
-
-To run the AI API from the extracted release folder:
-
-```powershell
-cd C:\Users\<YOUR_USER>\Downloads\SmartSecurity_API_Release\SmartSecurity_API_Release
-pip install -r requirements.txt
-python api.py
-```
-
-The API should print something similar to:
-
-```text
-Model loaded on cpu
-Uvicorn running on http://0.0.0.0:8000
-```
-
-Keep this terminal open while testing video analysis.
-
-## AI API Contract
-
-The backend sends:
-
-```json
-{
-  "source": "C:/path/to/server/uploads/video.mp4"
-}
-```
-
-Minimum valid response:
-
-```json
-{
-  "is_violent": false,
-  "total_clips": 2,
-  "status": "success"
-}
-```
-
-Recommended response with time ranges:
-
-```json
-{
-  "is_violent": true,
-  "total_clips": 5,
-  "violent_segments": [
-    {
-      "clip_index": 2,
-      "start_second": 6,
-      "end_second": 9,
-      "confidence": 0.87
-    }
-  ],
-  "status": "success"
-}
-```
-
-The frontend can show exact timestamps only if the AI API returns `violent_segments` or `violent_clips`.
-
-## Run The Project
-
-Use three terminals.
-
-Terminal 1 - AI API:
+### Step 3 — Install Python dependencies (AI model)
 
 ```bash
-python api.py
+cd SmartSecurity_API_Release
+pip3 install -r requirements.txt
 ```
 
-Terminal 2 - backend:
+---
 
+## Running the Project
+
+Open **3 terminal windows**:
+
+**Terminal 1 — MongoDB** (if running locally):
 ```bash
-npm run dev:server
+mongod --dbpath /path/to/data
 ```
 
-Expected backend output:
-
-```text
-[db] Connected to MongoDB
-Server is running on http://localhost:5001
-```
-
-Terminal 3 - frontend:
-
+**Terminal 2 — Node.js server:**
 ```bash
-npm run dev:client
+cd server && npm run dev
 ```
 
-Open the frontend URL printed by Vite. It is usually:
-
-```text
-http://localhost:5173
+**Terminal 3 — React frontend:**
+```bash
+cd client && npm run dev
 ```
 
-If port `5173` is busy, Vite may use another port such as `5174`.
-
-## Smoke Test
-
-1. Open the frontend in the browser.
-2. Sign up with a new user.
-3. Confirm that the first user is shown as `admin`.
-4. Upload a small `.mp4` test video.
-5. Click `Upload & Analyze`.
-6. Confirm that the result shows `Violence detected` or `No violence detected`.
-7. Open MongoDB Compass and refresh.
-8. Confirm that this database was created:
-
-```text
-ai-smart-security-system
+**Terminal 4 — Python AI API** (needed for video analysis):
+```bash
+cd SmartSecurity_API_Release && python3 api.py
 ```
 
-Expected MongoDB collections:
+Open the app at: **http://localhost:5173**
 
-- `users`
-- `videos`
-- `analysisresults`
+---
 
-## Roles
+## AI Model Integration
 
-- `admin`: can use the video analysis dashboard and access the Admin Console.
-- `user`: can upload videos and view only their own history.
+The AI model runs as a separate Python FastAPI service on port 8000.
 
-The first registered user becomes `admin`. Every later user is created with the `user` role.
+The Node.js backend sends the uploaded video file path to the AI API:
 
-Admin Console capabilities:
-
-- View all registered users.
-- Change another user's role to `user` or `admin`.
-- Block or unblock user accounts.
-- Delete users and their related uploaded video analysis data.
-
-Blocked users cannot log in. They receive this message:
-
-```text
-Your account has been blocked. Please contact the system administrator.
+**Request:**
+```json
+POST http://localhost:8000/analyze
+{ "source": "/path/to/uploads/video.mp4" }
 ```
+
+**Response:**
+```json
+{ "is_violent": false, "total_clips": 4, "status": "success" }
+```
+
+After analysis, the video file is deleted from disk and only the result is saved in MongoDB.
+
+---
+
+## Notes
+
+- The first registered user automatically becomes **admin**
+- Blocked users cannot log in
+- Videos are deleted from disk after analysis — only the name and result are kept in the database
+- The admin can view the history of any user through the Admin panel
+
+---
 
 ## Troubleshooting
 
-MongoDB connection refused:
+| Problem | Solution |
+|---------|----------|
+| MongoDB connection refused | Make sure MongoDB is running |
+| AI analysis failed | Make sure `python3 api.py` is running on port 8000 |
+| Port 5001 in use | Kill the process using that port and restart the server |
+| Video not showing in upload | Make sure the file has a video extension (.mp4, .avi, etc.) |
 
-```text
-connect ECONNREFUSED 127.0.0.1:27017
-```
+---
 
-MongoDB is not running. Start MongoDB locally or install MongoDB Community Server as a Windows service.
+## Team
 
-Backend port already in use:
+**Full-Stack Team**
+- Yuval Sucar
+- Yair Bar
 
-```text
-EADDRINUSE: address already in use :::5001
-```
-
-Find and stop the process:
-
-```powershell
-netstat -ano | findstr :5001
-taskkill /PID <PID> /F
-```
-
-AI analysis failed:
-
-- Make sure the Python API is running.
-- Make sure `AI_API_URL=http://localhost:8000/analyze` is set in `server/.env`.
-- Make sure the uploaded file path exists.
-- Large videos can take several minutes on CPU. Use a short test video first, or increase `AI_TIMEOUT_MS` in `server/.env`.
-
-Frontend cannot reach backend:
-
-- Make sure the backend is running on port `5001`.
-- If the backend port changed, update `client/.env`.
-
-## Useful Scripts
-
-From the project root:
-
-```bash
-npm run dev:server
-npm run dev:client
-npm run install:server
-npm run install:client
-```
-
-Build frontend:
-
-```bash
-npm run build --prefix client
-```
-
-## Repository
-
-[Ai-smart-security-system](https://github.com/yair323bar/Ai-smart-security-system)
+**AI Model Team**
+- Violence detection model using MViT (Multiscale Vision Transformers)
+- Provided as FastAPI service
