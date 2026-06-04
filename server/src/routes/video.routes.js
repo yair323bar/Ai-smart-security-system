@@ -85,6 +85,7 @@ router.post("/:id/analyze", authenticate, async (req, res) => {
 
     res.json({ result });
   } catch (error) {
+    await Video.findByIdAndUpdate(video._id, { analysisStatus: "failed" });
     res.status(502).json({ message: "AI analysis failed", detail: error.message });
   }
 });

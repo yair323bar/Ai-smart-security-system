@@ -6,7 +6,8 @@ const videoSchema = new mongoose.Schema(
     displayName: { type: String, required: true },
     originalName: { type: String, required: true },
     fileName: { type: String, required: true },
-    path: { type: String, required: true }
+    path: { type: String, required: true },
+    analysisStatus: { type: String, enum: ["failed"], default: null }
   },
   { timestamps: true }
 );

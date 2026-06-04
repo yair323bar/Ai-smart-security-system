@@ -424,7 +424,8 @@ input:focus {
 
 .badge--safe { background: #dcfce7; color: #15803d; }
 .badge--danger { background: #fee2e2; color: #dc2626; }
-.badge--pending { background: #f1f5f9; color: #64748b; }
+.badge--replaced { background: #f1f5f9; color: #64748b; }
+.badge--failed { background: #fff7ed; color: #c2410c; }
 
 /* ── Table ── */
 

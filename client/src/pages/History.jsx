@@ -73,8 +73,10 @@ function History() {
                           <span className={`badge ${video.result.isViolent ? "badge--danger" : "badge--safe"}`}>
                             {video.result.isViolent ? "Violence" : "Safe"}
                           </span>
+                        ) : video.analysisStatus === "failed" ? (
+                          <span className="badge badge--failed">Failed</span>
                         ) : (
-                          <span className="badge badge--pending">Pending</span>
+                          <span className="badge badge--replaced">Replaced</span>
                         )}
                       </td>
                     </tr>
