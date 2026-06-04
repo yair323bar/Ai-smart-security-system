@@ -31,13 +31,15 @@ router.post("/register", async (req, res) => {
     return res.status(409).json({ message: "Email or username already exists" });
   }
 
+  const userCount = await User.countDocuments();
   const user = await User.create({
     firstName,
     lastName,
     age: Number(age),
     email,
     username,
-    passwordHash: hashPassword(password)
+    passwordHash: hashPassword(password),
+    role: userCount === 0 ? "admin" : "user"
   });
 
   const token = createToken({ userId: user._id.toString() });
@@ -55,6 +57,10 @@ router.post("/login", async (req, res) => {
 
   if (!user || !verifyPassword(password, user.passwordHash)) {
     return res.status(401).json({ message: "Invalid username or password" });
+  }
+
+  if (user.status === "blocked") {
+    return res.status(403).json({ message: "Your account has been blocked" });
   }
 
   const token = createToken({ userId: user._id.toString() });

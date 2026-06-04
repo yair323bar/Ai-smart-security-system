@@ -7,7 +7,9 @@ const userSchema = new mongoose.Schema(
     age: { type: Number, required: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     username: { type: String, required: true, unique: true, trim: true },
-    passwordHash: { type: String, required: true }
+    passwordHash: { type: String, required: true },
+    role: { type: String, enum: ["user", "admin"], default: "user" },
+    status: { type: String, enum: ["active", "blocked"], default: "active" }
   },
   { timestamps: true }
 );
@@ -19,7 +21,9 @@ userSchema.methods.toSafeJSON = function () {
     lastName: this.lastName,
     age: this.age,
     email: this.email,
-    username: this.username
+    username: this.username,
+    role: this.role,
+    status: this.status
   };
 };
 

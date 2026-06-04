@@ -4,6 +4,7 @@ import express from "express";
 import { connectDB } from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import videoRoutes from "./routes/video.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use("/uploads", express.static("uploads"));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/videos", videoRoutes);
+app.use("/api/admin", adminRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () => {

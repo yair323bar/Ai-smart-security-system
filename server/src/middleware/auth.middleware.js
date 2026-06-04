@@ -17,9 +17,20 @@ export async function authenticate(req, res, next) {
       return res.status(401).json({ message: "User not found" });
     }
 
+    if (user.status === "blocked") {
+      return res.status(403).json({ message: "Your account has been blocked" });
+    }
+
     req.user = user;
     next();
   } catch (error) {
     return res.status(401).json({ message: error.message });
   }
+}
+
+export function requireAdmin(req, res, next) {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin access required" });
+  }
+  next();
 }

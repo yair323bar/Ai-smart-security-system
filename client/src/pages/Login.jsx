@@ -28,6 +28,7 @@ function Login() {
       if (!res.ok) throw new Error(data.message);
 
       localStorage.setItem(TOKEN_KEY, data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
       navigate("/upload");
     } catch (err) {
       setError(err.message);
@@ -40,7 +41,7 @@ function Login() {
     <div className="page-shell page-shell--auth">
       <div className="auth-card">
         <p className="auth-brand">AI Smart Security System</p>
-        <h1>Login</h1>
+        <h1>Welcome back</h1>
         <form className="auth-form" onSubmit={submit}>
           <label className="field-row">
             <span>Username</span>

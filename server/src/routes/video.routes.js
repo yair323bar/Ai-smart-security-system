@@ -39,8 +39,11 @@ router.post("/upload", authenticate, upload.single("video"), async (req, res) =>
     return res.status(400).json({ message: "Video file is required" });
   }
 
+  const displayName = req.body.displayName?.trim() || req.file.originalname;
+
   const video = await Video.create({
     userId: req.user._id,
+    displayName,
     originalName: req.file.originalname,
     fileName: req.file.filename,
     path: req.file.path
@@ -77,6 +80,8 @@ router.post("/:id/analyze", authenticate, async (req, res) => {
       { videoId: video._id, isViolent: analysis.isViolent },
       { new: true, upsert: true }
     );
+
+    fs.unlink(video.path, () => {});
 
     res.json({ result });
   } catch (error) {

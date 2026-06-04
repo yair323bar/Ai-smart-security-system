@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 const API = "http://localhost:5001/api";
 const TOKEN_KEY = "smart_security_token";
@@ -17,11 +18,6 @@ function VideoPreview() {
     navigate("/upload");
     return null;
   }
-
-  const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    navigate("/");
-  };
 
   const analyze = async () => {
     setLoading(true);
@@ -46,26 +42,19 @@ function VideoPreview() {
 
   return (
     <div className="page-shell page-shell--dashboard">
-      <main className="dashboard">
-        <header className="topbar">
-          <div>
-            <span>AI Smart Security System</span>
-            <strong>Video Violence Detection</strong>
-          </div>
-          <button className="secondary-button" onClick={logout}>Logout</button>
-        </header>
-
-        <section className="tool-panel">
+      <Navbar />
+      <main className="main-content">
+        <div className="page-card">
           <h2>{videoName}</h2>
 
           <video className="video-player" src={videoUrl} controls />
 
           {!result && (
             <div className="preview-actions">
-              <button className="primary-button" onClick={analyze} disabled={loading}>
+              <button className="btn-primary" onClick={analyze} disabled={loading}>
                 {loading ? "Analyzing... This may take a few minutes" : "Analyze Video"}
               </button>
-              <button className="secondary-button" onClick={() => navigate("/upload")}>
+              <button className="btn-secondary" onClick={() => navigate("/upload")}>
                 Replace Video
               </button>
             </div>
@@ -74,19 +63,18 @@ function VideoPreview() {
           {error && <p className="form-error">{error}</p>}
 
           {result && (
-            <div className={`result-box ${result.isViolent ? "result-box--danger" : "result-box--safe"}`}>
-              <span>{result.isViolent ? "Violence Detected" : "No Violence Detected"}</span>
-              <strong>{result.isViolent ? "Yes" : "No"}</strong>
-              <button
-                className="secondary-button"
-                onClick={() => navigate("/upload")}
-                style={{ marginTop: "16px", width: "fit-content" }}
-              >
-                Analyze Another Video
-              </button>
+            <div className={`result-banner ${result.isViolent ? "result-banner--danger" : "result-banner--safe"}`}>
+              <div className="result-banner-label">
+                {result.isViolent ? "Violence Detected" : "No Violence Detected"}
+              </div>
+              <div className="result-banner-verdict">{result.isViolent ? "YES" : "NO"}</div>
+              <div className="preview-actions" style={{ marginTop: "16px" }}>
+                <button className="btn-secondary" onClick={() => navigate("/history")}>View History</button>
+                <button className="btn-secondary" onClick={() => navigate("/upload")}>Analyze Another Video</button>
+              </div>
             </div>
           )}
-        </section>
+        </div>
       </main>
     </div>
   );

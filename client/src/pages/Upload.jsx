@@ -1,21 +1,18 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 const API = "http://localhost:5001/api";
 const TOKEN_KEY = "smart_security_token";
 
 function Upload() {
   const [file, setFile] = useState(null);
+  const [videoName, setVideoName] = useState("");
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const inputRef = useRef(null);
   const navigate = useNavigate();
-
-  const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    navigate("/");
-  };
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -37,6 +34,7 @@ function Upload() {
     try {
       const formData = new FormData();
       formData.append("video", file);
+      if (videoName.trim()) formData.append("displayName", videoName.trim());
 
       const res = await fetch(`${API}/videos/upload`, {
         method: "POST",
@@ -51,7 +49,7 @@ function Upload() {
         state: {
           videoId: data.video._id,
           videoUrl: `http://localhost:5001/uploads/${data.video.fileName}`,
-          videoName: data.video.originalName
+          videoName: data.video.displayName
         }
       });
     } catch (err) {
@@ -63,18 +61,11 @@ function Upload() {
 
   return (
     <div className="page-shell page-shell--dashboard">
-      <main className="dashboard">
-        <header className="topbar">
-          <div>
-            <span>AI Smart Security System</span>
-            <strong>Video Violence Detection</strong>
-          </div>
-          <button className="secondary-button" onClick={logout}>Logout</button>
-        </header>
-
-        <section className="tool-panel upload-panel">
+      <Navbar />
+      <main className="main-content">
+        <div className="page-card">
           <h2>Upload Video</h2>
-          <p className="status-message">Select a video file from your computer to analyze for violent content.</p>
+          <p className="page-subtitle">Upload a video to detect violent content using AI</p>
 
           <div
             className={`upload-dropzone${dragging ? " upload-dropzone--active" : ""}`}
@@ -90,20 +81,28 @@ function Upload() {
               accept="video/*"
               onChange={(e) => { setFile(e.target.files[0]); setError(""); }}
             />
-            <span>{file ? `Selected: ${file.name}` : "Click to browse or drag & drop a video here"}</span>
-            <small>Supported formats: MP4, AVI, MOV and other video formats</small>
+            <div className="dropzone-icon">▶</div>
+            <span>{file ? file.name : "Click to browse or drag & drop"}</span>
+            <small>MP4, AVI, MOV and other formats — up to 300MB</small>
+          </div>
+
+          <div className="field-group">
+            <label htmlFor="videoName">Video name (optional)</label>
+            <input
+              id="videoName"
+              type="text"
+              placeholder={file ? file.name : "Give this video a name..."}
+              value={videoName}
+              onChange={(e) => setVideoName(e.target.value)}
+            />
           </div>
 
           {error && <p className="form-error">{error}</p>}
 
-          <button
-            className="primary-button"
-            onClick={handleContinue}
-            disabled={!file || loading}
-          >
-            {loading ? "Uploading..." : "Continue →"}
+          <button className="btn-primary" onClick={handleContinue} disabled={!file || loading}>
+            {loading ? "Uploading..." : "Continue"}
           </button>
-        </section>
+        </div>
       </main>
     </div>
   );
