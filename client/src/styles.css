@@ -164,6 +164,7 @@ input:focus {
 }
 
 .nav-link:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.nav-link--active { background: rgba(255,255,255,0.18) !important; color: #fff !important; }
 
 .nav-link--admin {
   background: rgba(234, 179, 8, 0.2);
