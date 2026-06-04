@@ -204,9 +204,10 @@ input:focus {
 .page-shell--dashboard {
   min-height: 100vh;
   background:
-    radial-gradient(ellipse at 0% 0%, rgba(99, 102, 241, 0.18) 0%, transparent 50%),
-    radial-gradient(ellipse at 100% 100%, rgba(14, 165, 233, 0.15) 0%, transparent 50%),
-    linear-gradient(160deg, #dbeafe 0%, #ede9fe 35%, #e0f2fe 70%, #f0fdf4 100%);
+    radial-gradient(ellipse at 0% 0%, rgba(14, 165, 233, 0.22) 0%, transparent 45%),
+    radial-gradient(ellipse at 100% 100%, rgba(16, 185, 129, 0.2) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 60%),
+    linear-gradient(160deg, #e0f7fa 0%, #e0f2fe 35%, #d1fae5 75%, #ecfdf5 100%);
 }
 
 .main-content {
@@ -221,10 +222,10 @@ input:focus {
   background: #fff;
   border-radius: 16px;
   padding: 36px;
-  box-shadow: 0 4px 32px rgba(99, 102, 241, 0.1), 0 1px 4px rgba(0,0,0,0.06);
-  border: 1px solid rgba(99, 102, 241, 0.12);
+  box-shadow: 0 4px 32px rgba(6, 182, 212, 0.12), 0 1px 4px rgba(0,0,0,0.06);
+  border: 1px solid rgba(6, 182, 212, 0.15);
   border-top: 4px solid transparent;
-  border-image: linear-gradient(90deg, #6366f1, #0ea5e9, #10b981) 1 0 0 0;
+  border-image: linear-gradient(90deg, #0ea5e9, #06b6d4, #10b981) 1 0 0 0;
 }
 
 .page-card-header {
