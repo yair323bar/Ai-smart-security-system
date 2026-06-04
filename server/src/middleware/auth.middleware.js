@@ -13,8 +13,12 @@ export async function authenticate(req, res, next) {
     const payload = verifyToken(token);
     const user = await User.findById(payload.userId);
 
-    if (!user || user.status !== "active") {
-      return res.status(401).json({ message: "User is not allowed to access the system" });
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    if (user.status === "blocked") {
+      return res.status(403).json({ message: "Your account has been blocked" });
     }
 
     req.user = user;
@@ -24,12 +28,9 @@ export async function authenticate(req, res, next) {
   }
 }
 
-export function requireRole(...roles) {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: "Access denied for this role" });
-    }
-
-    next();
-  };
+export function requireAdmin(req, res, next) {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Admin access required" });
+  }
+  next();
 }
