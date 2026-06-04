@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 const API = "http://localhost:5001/api";
@@ -9,6 +9,7 @@ function History() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const userId = searchParams.get("userId");
   const userName = searchParams.get("name");
@@ -39,7 +40,14 @@ function History() {
       <Navbar />
       <main className="main-content">
         <div className="page-card">
-          <h2>{userId && userName ? `${userName}'s History` : "My Video History"}</h2>
+          <div className="page-card-header">
+            <h2>{userId && userName ? `${userName}'s History` : "My Video History"}</h2>
+            {userId && currentUser?.role === "admin" && (
+              <button className="btn-secondary btn-sm" onClick={() => navigate("/admin")}>
+                ← Back to Admin
+              </button>
+            )}
+          </div>
 
           {loading ? (
             <p className="empty-state">Loading...</p>
