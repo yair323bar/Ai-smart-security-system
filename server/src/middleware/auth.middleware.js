@@ -13,8 +13,8 @@ export async function authenticate(req, res, next) {
     const payload = verifyToken(token);
     const user = await User.findById(payload.userId);
 
-    if (!user || user.status !== "active") {
-      return res.status(401).json({ message: "User is not allowed to access the system" });
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
     }
 
     req.user = user;
@@ -22,14 +22,4 @@ export async function authenticate(req, res, next) {
   } catch (error) {
     return res.status(401).json({ message: error.message });
   }
-}
-
-export function requireRole(...roles) {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: "Access denied for this role" });
-    }
-
-    next();
-  };
 }
