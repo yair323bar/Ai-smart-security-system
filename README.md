@@ -224,6 +224,8 @@ After analysis, the video file is deleted from disk and only the result is saved
 **Full-Stack Team**
 - Yuval Sucar
 - Yair Bar
+- Shoham
+- Gilad
 
 **AI Model Team**
 - Violence detection model using MViT (Multiscale Vision Transformers)
