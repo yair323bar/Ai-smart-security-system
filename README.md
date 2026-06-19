@@ -152,7 +152,7 @@ pip3 install -r requirements.txt
 
 ## Running the Project
 
-Open **3 terminal windows**:
+Open **4 terminal windows**:
 
 **Terminal 1 — MongoDB** (if running locally):
 ```bash
