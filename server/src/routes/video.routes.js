@@ -81,8 +81,6 @@ router.post("/:id/analyze", authenticate, async (req, res) => {
       { new: true, upsert: true }
     );
 
-    fs.unlink(video.path, () => {});
-
     res.json({ result });
   } catch (error) {
     await Video.findByIdAndUpdate(video._id, { analysisStatus: "failed" });

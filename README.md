@@ -1,17 +1,17 @@
 # AI Smart Security System
 
-A full-stack web application that allows users to upload videos and detect violent content using an AI model. Built as a final project integrating a violence detection model developed by a separate team.
+A full-stack web application for uploading videos and detecting violent content using an AI model.
 
 ---
 
 ## What the System Does
 
-1. Users register and log in to the system
-2. An authenticated user uploads a video file from their computer
+1. Users register and log in
+2. An authenticated user uploads a video file
 3. The user previews the video and clicks **Analyze Video**
 4. The system sends the video to an AI model (Python FastAPI) that detects violent content
 5. The result — **Violence Detected** or **No Violence Detected** — is displayed and saved
-6. Users can view their full analysis history
+6. Users can view their full analysis history with clickable video links
 7. Admin users can manage all registered users (roles, blocking, deletion) and view any user's history
 
 ---
@@ -22,22 +22,103 @@ A full-stack web application that allows users to upload videos and detect viole
 - Login with JWT authentication
 - Video upload with drag & drop support and optional custom name
 - AI-powered violence detection per uploaded video
-- Personal history page showing all uploads and their results
-- Admin panel: manage users, change roles, block/unblock, delete
-- Sticky navigation bar with active page indicator
+- Personal history page — results shown as Yes / No / No analysis performed
+- Videos are kept after analysis and accessible via a clickable link in history
+- Admin panel: manage users, change roles, block/unblock, delete, view history
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+|-------|------------|
 | Frontend | React 18, React Router v6, Vite |
 | Backend | Node.js, Express |
 | Database | MongoDB, Mongoose |
 | File Upload | Multer |
-| Auth | JWT (custom implementation) |
+| Auth | JWT |
 | AI Service | Python, FastAPI, PyTorch (MViT model) |
+
+---
+
+## Prerequisites
+
+- Node.js 18+
+- Python 3.8+
+- MongoDB (installed via Homebrew)
+- The AI model folder: `SmartSecurity_API_Release` (provided separately)
+
+---
+
+## First-Time Setup
+
+### 1. Install Node dependencies
+
+```bash
+npm run install:server
+npm run install:client
+```
+
+### 2. Install Python dependencies (AI model)
+
+```bash
+pip3 install -r /path/to/SmartSecurity_API_Release/requirements.txt
+```
+
+### 3. Create environment file
+
+```bash
+cp server/.env.example server/.env
+```
+
+Edit `server/.env` and set a value for `JWT_SECRET`.
+
+---
+
+## Running the Project
+
+Open **4 terminal windows**:
+
+**Terminal 1 — MongoDB:**
+```bash
+brew services start mongodb-community
+```
+
+**Terminal 2 — Node.js server:**
+```bash
+cd /path/to/Ai-smart-security-system && npm run dev:server
+```
+
+**Terminal 3 — React frontend:**
+```bash
+cd /path/to/Ai-smart-security-system && npm run dev:client
+```
+
+**Terminal 4 — Python AI API:**
+```bash
+cd /path/to/SmartSecurity_API_Release && python3 api.py
+```
+
+Open the app at: **http://localhost:5173**
+
+---
+
+## AI Model Integration
+
+The AI model runs as a separate Python FastAPI service on port 8000.
+
+The Node.js backend sends the uploaded video file path to the AI API:
+
+**Request:**
+```json
+POST http://localhost:8000/analyze
+{ "source": "/absolute/path/to/uploads/video.mp4" }
+```
+
+**Response:**
+```json
+{ "is_violent": false, "total_clips": 4, "status": "success" }
+```
 
 ---
 
@@ -49,7 +130,7 @@ A full-stack web application that allows users to upload videos and detect viole
 | firstName | String | |
 | lastName | String | |
 | age | Number | Must be 18 or older |
-| email | String | Unique, validated format |
+| email | String | Unique, validated |
 | username | String | Unique |
 | passwordHash | String | Hashed with scrypt |
 | role | String | `user` or `admin` |
@@ -58,10 +139,10 @@ A full-stack web application that allows users to upload videos and detect viole
 **videos**
 | Field | Type | Description |
 |-------|------|-------------|
-| userId | ObjectId | Reference to the user who uploaded |
+| userId | ObjectId | Reference to the user |
 | displayName | String | Custom name or original filename |
-| originalName | String | Original filename from the user's computer |
-| fileName | String | Saved filename on the server |
+| originalName | String | Original filename |
+| fileName | String | Saved filename on disk |
 | path | String | Full path used by the AI model |
 | analysisStatus | String | `null` or `failed` |
 
@@ -108,102 +189,12 @@ Ai-smart-security-system/
 
 ---
 
-## Setup and Running
-
-### Prerequisites
-
-- Node.js 18+
-- Python 3.8+
-- MongoDB (local or Atlas)
-- The AI model release folder: `SmartSecurity_API_Release`
-
-### Step 1 — Install dependencies
-
-```bash
-cd client && npm install
-cd ../server && npm install
-```
-
-### Step 2 — Create environment file
-
-Copy the example file:
-
-```bash
-cp server/.env.example server/.env
-```
-
-Edit `server/.env`:
-
-```env
-PORT=5001
-MONGODB_URI=mongodb://127.0.0.1:27017/ai-smart-security-system
-JWT_SECRET=your-secret-key-here
-AI_API_URL=http://localhost:8000/analyze
-```
-
-### Step 3 — Install Python dependencies (AI model)
-
-```bash
-cd SmartSecurity_API_Release
-pip3 install -r requirements.txt
-```
-
----
-
-## Running the Project
-
-Open **4 terminal windows**:
-
-**Terminal 1 — MongoDB** (if running locally):
-```bash
-mongod --dbpath /path/to/data
-```
-
-**Terminal 2 — Node.js server:**
-```bash
-cd server && npm run dev
-```
-
-**Terminal 3 — React frontend:**
-```bash
-cd client && npm run dev
-```
-
-**Terminal 4 — Python AI API** (needed for video analysis):
-```bash
-cd SmartSecurity_API_Release && python3 api.py
-```
-
-Open the app at: **http://localhost:5173**
-
----
-
-## AI Model Integration
-
-The AI model runs as a separate Python FastAPI service on port 8000.
-
-The Node.js backend sends the uploaded video file path to the AI API:
-
-**Request:**
-```json
-POST http://localhost:8000/analyze
-{ "source": "/path/to/uploads/video.mp4" }
-```
-
-**Response:**
-```json
-{ "is_violent": false, "total_clips": 4, "status": "success" }
-```
-
-After analysis, the video file is deleted from disk and only the result is saved in MongoDB.
-
----
-
 ## Notes
 
 - The first registered user automatically becomes **admin**
 - Blocked users cannot log in
-- Videos are deleted from disk after analysis — only the name and result are kept in the database
+- Videos are stored on disk after analysis and accessible via history
+- Replaced videos (uploaded but not analyzed) do not appear in history
 - The admin can view the history of any user through the Admin panel
 
 ---
@@ -212,7 +203,7 @@ After analysis, the video file is deleted from disk and only the result is saved
 
 | Problem | Solution |
 |---------|----------|
-| MongoDB connection refused | Make sure MongoDB is running |
+| MongoDB connection refused | Run `brew services start mongodb-community` |
 | AI analysis failed | Make sure `python3 api.py` is running on port 8000 |
 | Port 5001 in use | Kill the process using that port and restart the server |
 | Video not showing in upload | Make sure the file has a video extension (.mp4, .avi, etc.) |

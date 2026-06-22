@@ -25,7 +25,12 @@ function History() {
 
     fetch(url, { headers: { Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY)}` } })
       .then((r) => r.json())
-      .then((data) => { setVideos(data.videos || []); setLoading(false); })
+      .then((data) => {
+          const all = data.videos || [];
+          const filtered = all.filter((v) => v.result !== null || v.analysisStatus === "failed");
+          setVideos(filtered);
+          setLoading(false);
+        })
       .catch(() => setLoading(false));
   }, []);
 
@@ -66,17 +71,23 @@ function History() {
                 <tbody>
                   {videos.map((video) => (
                     <tr key={video._id}>
-                      <td>{video.displayName || video.originalName}</td>
+                      <td>
+                        <a
+                          href={`http://localhost:5001/uploads/${video.fileName}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {video.displayName || video.originalName}
+                        </a>
+                      </td>
                       <td>{formatDate(video.createdAt)}</td>
                       <td>
                         {video.result ? (
                           <span className={`badge ${video.result.isViolent ? "badge--danger" : "badge--safe"}`}>
-                            {video.result.isViolent ? "Violence" : "Safe"}
+                            {video.result.isViolent ? "Yes" : "No"}
                           </span>
-                        ) : video.analysisStatus === "failed" ? (
-                          <span className="badge badge--failed">Failed</span>
                         ) : (
-                          <span className="badge badge--replaced">Replaced</span>
+                          <span className="badge badge--failed">No analysis performed</span>
                         )}
                       </td>
                     </tr>
